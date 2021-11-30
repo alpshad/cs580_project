@@ -35,13 +35,26 @@ def get_data(start, end, datafile, window_size=2, step_size=1):
         y_mask = ((data['YEAR'] == X_end) & (data['WEEK'] >= 40)) | ((data['YEAR'] == (X_end + 1)) & (data['WEEK'] <= 39))
         y = data.loc[y_mask]
         y = y.groupby(['WEEK']).sum()["TOTAL CASES"]
-        X_list.append(np.array(X))
-        y_list.append(np.array(y))
-    # get norms
-    end_X = end + window_size
-    X_mask = ((data['YEAR'] == start) & (data['WEEK'] >= 40)) | ((data['YEAR'] == end_X) & (data["WEEK"] <= 39)) | \
-                ((data['YEAR'] > start) & (data["YEAR"] < end_X))
-    X_total = np.array(data.loc[X_mask]["TOTAL CASES"])
-    X_mean = X_total.mean()
-    X_std = X_total.std()
-    return np.array(X_list), np.array(y_list), X_mean, X_std
+        X_list.append(np.array(X, dtype=np.float32))
+        y_list.append(np.array(y, dtype=np.float32))
+    X_list = np.array(X_list, dtype=np.float32)
+    y_list = np.array(y_list, dtype=np.float32)
+
+    X_mean = X_list.mean()
+    X_std = X_list.std()
+    y_mean = y_list.mean()
+    y_std = y_list.std()
+    
+    loc_list = list(data['REGION'].unique())
+    return X_list, y_list, X_mean, X_std, y_mean, y_std, loc_list
+
+def get_edges(X, loc_list):
+    # for now, add an edge between all nodes
+    rows = []
+    cols = []
+    for i in range(len(loc_list)):
+        for j in range(len(loc_list)):
+            rows.append(i)
+            cols.append(j)
+    # rows, cols makes up the edge list where node ID is index into loc_list
+    return (rows, cols)
