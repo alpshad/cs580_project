@@ -34,7 +34,7 @@ def get_data(start, end, datafile, window_size=2, step_size=1):
         X = data.loc[X_mask]["TOTAL CASES"]
         y_mask = ((data['YEAR'] == X_end) & (data['WEEK'] >= 40)) | ((data['YEAR'] == (X_end + 1)) & (data['WEEK'] <= 39))
         y = data.loc[y_mask]
-        y = y.groupby(['WEEK']).sum()["TOTAL CASES"]
+        y = y.groupby(['WEEK'], sort=False).sum()["TOTAL CASES"]
         X_list.append(np.array(X, dtype=np.float32))
         y_list.append(np.array(y, dtype=np.float32))
     X_list = np.array(X_list, dtype=np.float32)
